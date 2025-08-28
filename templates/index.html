@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Chatbot UI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to My Flask Chatbot 🤖</h1>
+        <p>Ask me anything below!</p>
+    </div>
+
+    <!-- Chatbot Widget -->
+    <div class="chatbot">
+        <div class="chat-header">Chatbot</div>
+        <div class="chat-body" id="chat-body">
+            <p class="bot">Hello! How can I help you today?</p>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type a message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            let input = document.getElementById("user-input");
+            let chatBody = document.getElementById("chat-body");
+
+            if (input.value.trim() !== "") {
+                // Add user message
+                let userMsg = document.createElement("p");
+                userMsg.className = "user";
+                userMsg.textContent = input.value;
+                chatBody.appendChild(userMsg);
+
+                // Send message to backend
+                let response = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: input.value })
+                });
+
+                let data = await response.json();
+
+                // Add bot reply
+                let botMsg = document.createElement("p");
+                botMsg.className = "bot";
+                botMsg.textContent = data.reply;
+                chatBody.appendChild(botMsg);
+
+                // Clear input + scroll
+                input.value = "";
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+        }
+    </script>
+</body>
+</html>
